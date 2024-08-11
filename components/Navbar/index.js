@@ -5,12 +5,11 @@ const Navbar = styled('nav')(() => ({
   backgroundColor: '#333',
   color: '#fff',
   width: '100%',
-  position: 'absolute',
+  position: 'sticky',
   top: 0,
-  left: 0,
   zIndex: 1000,
-}));
-
+  padding: '10px 0',
+}));   
 const ListItem = styled('li')(() => ({
   display: 'inline-block',
   marginRight: '20px',
@@ -26,22 +25,18 @@ const Link = styled('a')(() => ({
     textDecoration: 'underline',
   },
 }));
-
 const TopNavbar = () => {
   return (
-    <div>
-      <Navbar>
-        <ul style={{}}>
-          <ListItem>
-            <Link href={'/'}>Home</Link>
-          </ListItem>
-          <ListItem>
-            <Link href={'/users'}>Users</Link>
-          </ListItem>
-        </ul>
-      </Navbar>
-    </div>
+    <Navbar>
+      <ul style={{ margin: 0, padding: 0, listStyleType: 'none' }}>
+        <ListItem>
+          <Link href={'/'}>Home</Link>
+        </ListItem>
+        <ListItem>
+          <Link href={'/users'}>Users</Link>
+        </ListItem>
+      </ul>
+    </Navbar>
   );
 };
-
 export default TopNavbar;
