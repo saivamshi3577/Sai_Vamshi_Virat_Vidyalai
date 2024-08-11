@@ -1,12 +1,10 @@
 import React from 'react';
 import styled from '@emotion/styled';
-
 const FooterContainer = styled('footer')(() => ({
   backgroundColor: '#333',
   color: '#fff',
   marginTop: 'auto',
 }));
-
 const FooterContent = styled('div')(() => ({
   maxWidth: '1200px',
   margin: '0 auto',
@@ -68,5 +66,4 @@ const Footer = () => {
     </FooterContainer>
   );
 };
-
 export default Footer;

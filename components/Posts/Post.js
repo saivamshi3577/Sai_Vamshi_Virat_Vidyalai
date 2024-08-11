@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import styled from '@emotion/styled';
+import axios from 'axios';
+
 
 const PostContainer = styled.div(() => ({
   width: '300px',
@@ -23,6 +25,8 @@ const Carousel = styled.div(() => ({
     display: 'none',
   },
   position: 'relative',
+  scrollSnapType: 'x mandatory',
+  scrollBehavior: 'smooth',
 }));
 
 const CarouselItem = styled.div(() => ({
@@ -40,19 +44,22 @@ const Image = styled.img(() => ({
 const Content = styled.div(() => ({
   padding: '10px',
   '& > h2': {
-    marginBottom: '16px',
+    marginBottom: '16px', 
+    
   },
 }));
 
 const Button = styled.button(() => ({
   position: 'absolute',
-  bottom: 0,
+  top: '50%',
+  transform: 'translateY(-50%)',
   backgroundColor: 'rgba(255, 255, 255, 0.5)',
   border: 'none',
   color: '#000',
   fontSize: '20px',
   cursor: 'pointer',
   height: '50px',
+  width: '30px',
 }));
 
 const PrevButton = styled(Button)`
@@ -63,13 +70,38 @@ const NextButton = styled(Button)`
   right: 10px;
 `;
 
+
 const Post = ({ post }) => {
+  const [users, setUsers] = useState([]);
   const carouselRef = useRef(null);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const { data: users } = await axios.get('/api/v1/users');
+        setUsers(users);
+      } catch (error) {
+        console.error('Failed to fetch users', error);
+      }
+    };
+
+    fetchUsers();
+  }, []); 
+
+  const getUserInitials = (name) => {
+    if (!name) return '';
+    const nameParts = name.split(' ');
+    const initials = nameParts.map(part => part.charAt(0).toUpperCase());
+    return initials.join('');
+  };
+
+  
 
   const handleNextClick = () => {
     if (carouselRef.current) {
+      const imageWidth = carouselRef.current.children[0].clientWidth;
       carouselRef.current.scrollBy({
-        left: 50,
+        left: imageWidth,
         behavior: 'smooth',
       });
     }
@@ -77,18 +109,35 @@ const Post = ({ post }) => {
 
   const handlePrevClick = () => {
     if (carouselRef.current) {
+      const imageWidth = carouselRef.current.children[0].clientWidth;
       carouselRef.current.scrollBy({
-        left: -70,
+        left: -imageWidth,
         behavior: 'smooth',
       });
     }
   };
 
+  
+  const user = users.find(u => u.id === post.id);
+  console.log(users); 
+  console.log(post.id);
   return (
     <PostContainer>
-      <CarouselContainer>
-        <Carousel ref={carouselRef}>
-          {post.images.map((image, index) => (
+      <CarouselContainer>  
+        {user ? ( 
+          <div className='nameEmail'> 
+              <h3>
+          {getUserInitials(user.name)}
+          </h3> 
+          <p> {user.email}</p>
+          </div>
+          
+        ) : (
+          <p>User not found</p>
+        )}
+        <Carousel ref={carouselRef}>  
+          
+          {post.images.map((image, index) => ( 
             <CarouselItem key={index}>
               <Image src={image.url} alt={post.title} />
             </CarouselItem>
@@ -99,7 +148,9 @@ const Post = ({ post }) => {
       </CarouselContainer>
       <Content>
         <h2>{post.title}</h2>
-        <p>{post.body}</p>
+        <p>{post.body}</p> 
+        
+        
       </Content>
     </PostContainer>
   );
@@ -107,12 +158,14 @@ const Post = ({ post }) => {
 
 Post.propTypes = {
   post: PropTypes.shape({
-    content: PropTypes.any,
-    images: PropTypes.shape({
-      map: PropTypes.func,
-    }),
-    title: PropTypes.any,
-  }),
+    userId: PropTypes.number.isRequired,
+    images: PropTypes.arrayOf(
+      PropTypes.shape({
+        url: PropTypes.string.isRequired,
+      })
+    ).isRequired,
+    title: PropTypes.string.isRequired,
+    body: PropTypes.string.isRequired,
+  }).isRequired,
 };
-
 export default Post;
